@@ -1,0 +1,46 @@
+rad = 1;
+t = 1;
+n = 1;
+s = 1;
+B = -((12*(sqrt(2*n*t))^4)/(sqrt(2)*pi^2))*((1-(3/(2*(sqrt(2*n*t))^2))*(1-((2*(sqrt(2*n*t))*exp(-(sqrt(2*n*t))^2))/(sqrt(pi)*erf(sqrt(2*n*t))))))^(-1/2))*((1-((2*(sqrt(2*n*t))*exp(-(sqrt(2*n*t))^2))/(sqrt(pi)*erf(sqrt(2*n*t))))*(1+(2*(sqrt(2*n*t))^2)/3))^(-1/2));
+
+func = @(theta, phi) sin(theta) .* cos(phi) .* integral3(@(k, u, c) (k.^2).*exp(-1.5*(k.^2)).*(u.^3).*sqrt(1-u.^2).*exp(-(sqrt(2*n*t)*u).^2).*sin(k.*u.*s.*cos(theta)./sqrt((rad^2+4*t)/3)).*cos(c).*sin((k.*sqrt(1-u.^2))./sqrt((rad^2+4*t)/3).*(s.*cos(c).*sin(theta).*cos(phi)+s.*sin(c).*sin(theta).*sin(phi))), 0, Inf, -1, 1, 0, 2*pi);
+
+theta_values = linspace(0, pi, 10); % Polar angle theta values
+phi_values = linspace(0, 2*pi, 10); % Azimuthal angle phi values
+
+X = zeros(length(theta_values), length(phi_values));
+Y = zeros(length(theta_values), length(phi_values));
+Z = zeros(length(theta_values), length(phi_values));
+R = zeros(length(theta_values), length(phi_values));
+
+total_steps = length(theta_values) * length(phi_values);
+current_step = 0;
+progress_bar = waitbar(0, 'Calculating...');
+
+for i = 1:length(theta_values)
+    for j = 1:length(phi_values)
+        theta = theta_values(i);
+        phi = phi_values(j);
+        x = func(theta, phi)* sin(theta) * cos(phi);
+        y = func(theta, phi)* sin(theta) * sin(phi);
+        z = func(theta, phi)* cos(theta);
+        R(i, j) = B * func(theta, phi);
+        X(i, j) = x;
+        Y(i, j) = y;
+        Z(i, j) = z;
+        
+        current_step = current_step + 1;
+        progress = current_step / total_steps;
+        waitbar(progress, progress_bar, sprintf('Calculating... %.2f%%', progress*100));
+    
+    end
+end
+
+close(progress_bar);
+
+figure;
+surf(X, Y, R);
+xlabel('x');
+ylabel('y');
+zlabel('z');
