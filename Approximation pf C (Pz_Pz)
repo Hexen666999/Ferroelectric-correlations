@@ -1,0 +1,35 @@
+clear all
+
+n = 1;
+t = 1;
+r = 1;
+% s = 1;
+% s = 5;
+ s = 10;
+L = sqrt((4*t+r^2)/3);
+b = sqrt(2*n*t);
+a = 0:1:360;
+a = a*pi/180;
+u = ((s^2)/(12*(L^2)));
+
+fun0 = @(k,m,a) ((k.^2).*exp(-(1.5*k.^2))).*((exp(-(b*m).^2)).*cos(s*cos(a).*k.*m/L).*besselj(0,s*sin(a).*k.*sqrt(1-m.^2)/L));
+f0 = arrayfun(@(a)integral2(@(k,m)fun0(k,m,a),0,Inf,-1,1),a);
+Cof0 = (3*sqrt(6)*b)/(pi*erf(b));
+
+C0 = Cof0.*f0;
+
+C1 = (b/(erf(b)))*((erf((b^2)+((s^2)/(6*(L^2)))))*(((b^2)+((s^2)/(6*(L^2))))^(-3/2))*(b^2)+((2*s^2)/(6*sqrt(pi)*(L^2)))*((exp(-(b^2)-((s^2)/(6*(L^2)))))*(((b^2)+((s^2)/(6*(L^2))))^(-1))));
+
+fun2 = @(z) (((1-z).^(-1/2)).*(exp((z*(b^2-u)))).*((1-(2*u.*z)).*besseli(0,u.*z)+(2*u.*z).*besseli(1,u.*z)));
+f2 =(@(z)integral(@(z)fun2(z),0,1));
+Cof = (b*exp(-(b^2)))/(sqrt(pi)*erf(b));
+
+C2 = Cof.*f2(0);
+
+C = C1*((cos(a)).^2)+C2*((sin(a)).^2);
+
+g = polar(a,C0,'b-');
+set(g, 'LineWidth', 2);
+hold on
+h = polar(a,C,'r--');
+set(h, 'LineWidth', 1.5);
