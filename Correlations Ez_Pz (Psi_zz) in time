@@ -1,0 +1,22 @@
+s = 3;
+n = 1;
+r = 1;
+a = 0:1:360;
+a = a*pi/180;
+
+t1 = 0.01;
+% t1 = 0.1;
+% t1 = 0.5;% 
+% t1 = 1;
+% t1 = 5;
+% t1 = 30;
+
+b1 = sqrt(2*n*t1);
+L1 = sqrt((4*t1+r^2)/3);
+fun1 = @(k,u,a) ((k.^2).*exp(-(1.5*k.^2))).*((u.^2).*(exp(-(b1*u).^2)).*cos(s*cos(a).*k.*u/L1).*besselj(0,s*sin(a).*k.*sqrt(1-u.^2)/L1));
+f31 = arrayfun(@(a)integral2(@(k,u)fun1(k,u,a),0,Inf,-1,1),a);
+B1 = -((6*sqrt(2)*(b1^3))/(erf(b1)*(pi)))*(1-((2*b1*exp(-b1^2))/(erf(b1)*sqrt(pi)))*(1+(2*b1^2)/3))^(-1/2);
+
+R1 = B1*f31;
+
+polar(a,R1,'b-');
