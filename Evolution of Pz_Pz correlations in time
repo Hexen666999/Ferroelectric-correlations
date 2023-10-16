@@ -1,0 +1,46 @@
+%Cut: sx = s*sin(a); sy = 0; sz = s*cos(a)
+
+s = 3;
+n = 1;
+tv = 0:0.1:5;%3;
+r = 1;
+a = 0:1:360;
+a = deg2rad(a);
+tic
+for k = 1:numel(tv)
+    t = tv(k)
+    b = sqrt(2*n*t);
+    L = sqrt((4*t+r^2)/3);
+    fun = @(k,u,a) ((k.^2).*exp(-(1.5*k.^2))).*((exp(-(b*u).^2)).*cos(s*cos(a).*k.*u/L).*besselj(0,s*sin(a).*k.*sqrt(1-u.^2)/L));
+    f3 = arrayfun(@(a)integral2(@(k,u)fun(k,u,a),0,Inf,-1,1),a);
+    B = (3*sqrt(6)*b)/(pi*erf(b));
+    R = B*f3;      
+    ta = t*ones(size(a));
+    [x,y,z] = pol2cart(a, R, ta);
+    X(k,:) = x;
+    Y(k,:) = y;
+    Z(k,:) = z;
+    toc                            
+    LIT = toc/k                                         
+end
+toc
+figure
+surfc(X, Y, Z)
+colormap(default)
+axis('equal')
+axis('on')
+hold on
+xc = [0:0.25*r:r].'*cos(a);
+yc = [0:0.25*r:r].'*sin(a);
+xr = [0;r]*cos(0:pi/4:2*pi);
+yr = [0;r]*sin(0:pi/4:2*pi);
+plot3(xc.', yc.', zeros(size(xc)), '-k')
+plot3(xr, yr, zeros(size(xr)), '-k')
+zt = (0:1:max(tv)).';
+zt1 = ones(size(zt));
+surfc(zt1*xc(end,:), zt1*yc(end,:), zt*ones(size(a)), 'FaceAlpha',0, 'MeshStyle','row')
+hold off
+text(xr(2,1:end-1)*1.1,yr(2,1:end-1)*1.1, zeros(1,size(xr,2)-1), compose('%3d°',(0:45:315)), 'Horiz','center','Vert','middle')
+text(ones(size(zt))*xc(end,end-10), ones(size(zt))*yc(end,end-10), zt, compose('%.1f',zt))
+toc
+TTmin = toc/60
